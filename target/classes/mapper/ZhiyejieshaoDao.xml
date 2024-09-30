@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhiyejieshaoDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhiyejieshao_name as zhiyejieshaoName
+        ,a.zhiyejieshao_photo as zhiyejieshaoPhoto
+        ,a.zhiyejieshao_types as zhiyejieshaoTypes
+        ,a.zhiyejieshao_content as zhiyejieshaoContent
+        ,a.zhiyejieshao_delete as zhiyejieshaoDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhiyejieshaoView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM zhiyejieshao  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.zhiyejieshaoName != '' and params.zhiyejieshaoName != null and params.zhiyejieshaoName != 'null' ">
+                and a.zhiyejieshao_name like CONCAT('%',#{params.zhiyejieshaoName},'%')
+            </if>
+            <if test="params.zhiyejieshaoTypes != null and params.zhiyejieshaoTypes != ''">
+                and a.zhiyejieshao_types = #{params.zhiyejieshaoTypes}
+            </if>
+            <if test=" params.zhiyejieshaoContent != '' and params.zhiyejieshaoContent != null and params.zhiyejieshaoContent != 'null' ">
+                and a.zhiyejieshao_content like CONCAT('%',#{params.zhiyejieshaoContent},'%')
+            </if>
+            <if test="params.zhiyejieshaoDeleteStart != null and params.zhiyejieshaoDeleteStart != ''">
+                <![CDATA[  and a.zhiyejieshao_delete >= #{params.zhiyejieshaoDeleteStart}   ]]>
+            </if>
+            <if test="params.zhiyejieshaoDeleteEnd != null and params.zhiyejieshaoDeleteEnd != ''">
+                <![CDATA[  and a.zhiyejieshao_delete <= #{params.zhiyejieshaoDeleteEnd}   ]]>
+            </if>
+             <if test="params.zhiyejieshaoDelete != null and params.zhiyejieshaoDelete != ''">
+                and a.zhiyejieshao_delete = #{params.zhiyejieshaoDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
